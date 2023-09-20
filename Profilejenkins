@@ -10,11 +10,6 @@ pipeline {
                 sh 'mvn clean package' // Use 'clean package' to build a WAR
             }
         }
-        stage('Run Java Code') {
-            steps {
-                sh 'mvn --version'
-                sh 'java -cp target/profile.war DevOpsEngineerDetails' // Replace 'your-web-app' with your WAR file name
-            }
-        }
+        
     }
 }
