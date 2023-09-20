@@ -8,7 +8,7 @@ pipeline {
         stage('Build and Run Java Code') {
             steps {
                 sh 'mvn --version'
-                sh 'javac Profile.java'
+                sh 'javac DevOpsEngineerDetailsProfile.java'
                 sh 'java DevOpsEngineerDetails'
             }
         }
