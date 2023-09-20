@@ -10,15 +10,16 @@ pipeline {
                 sh 'mvn clean package' // Use 'clean package' to build a WAR
             }
         }
-        stage('SonarQube Analysis') {
+        stage('Static Code Analysis') {
+            environment {
+                SONAR_URL = "http://3.209.59.238/:9000"
+            }
             steps {
-                script {
-                    // Define the SonarQube Scanner tool
-                    def scannerHome = tool 'SonarQube Scanner'
-                    def scanner = "${scannerHome}/bin/sonar-scanner"
-
-                    // Run SonarQube analysis
-                    sh "${scanner} -Dsonar.projectKey=your_project_key -Dsonar.sources=./src/main/java"
+                withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+                    sh '''
+                        cd SubashreeG/jenkins
+                        mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}
+                    '''
                 }
             }
         }
