@@ -10,6 +10,17 @@ pipeline {
                 sh 'mvn clean package' // Use 'clean package' to build a WAR
             }
         }
-        
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    // Define the SonarQube Scanner tool
+                    def scannerHome = tool 'SonarQube Scanner'
+                    def scanner = "${scannerHome}/bin/sonar-scanner"
+
+                    // Run SonarQube analysis
+                    sh "${scanner} -Dsonar.projectKey=your_project_key -Dsonar.sources=./src/main/java"
+                }
+            }
+        }
     }
 }
