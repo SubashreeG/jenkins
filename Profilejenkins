@@ -10,17 +10,10 @@ pipeline {
                 sh 'mvn clean package' // Use 'clean package' to build a WAR
             }
         }
-        stage('Extract and Run Java Code') {
+        stage('Run Java Code') {
             steps {
                 sh 'mvn --version'
-                
-                // Extract the Java class from the WAR file
-                sh 'mkdir extracted-class'
-                sh 'unzip -q target/profile.war -d extracted-class'
-                
-                // Compile and run the extracted Java class
-                sh 'javac -cp "extracted-class/WEB-INF/classes" extracted-class/path/to/DevOpsEngineerDetails.java'
-                sh 'java -cp "extracted-class/WEB-INF/classes" path.to.DevOpsEngineerDetails'
+                sh 'java -cp target/profile.war DevOpsEngineerDetails' // Replace 'your-web-app' with your WAR file name
             }
         }
     }
