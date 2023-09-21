@@ -24,13 +24,13 @@ pipeline {
             environment {
         DOCKER_IMAGE = "suba99ee/jenkinsprofile:${BUILD_NUMBER}"
         // DOCKERFILE_LOCATION = "SubashreeG/jenkins/Dockerfile"
-        REGISTRY_CREDENTIALS = credentials('dockcred')
+        REGISTRY_CREDENTIALS = credentials('dokcred')
       }
       steps {
         script {
             sh 'cd /usr/bin/docker && docker build -t ${DOCKER_IMAGE} .'
             def dockerImage = docker.image("${DOCKER_IMAGE}")
-            docker.withRegistry('https://hub.docker.com/repository/docker/suba99ee', "dockcred") {
+            docker.withRegistry('https://hub.docker.com/repository/docker/suba99ee', "dokcred") {
                 dockerImage.push()
             }
         }
