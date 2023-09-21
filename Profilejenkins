@@ -22,19 +22,27 @@ pipeline {
         }
         stage('Build and Push Docker Image') {
             environment {
-        DOCKER_IMAGE = "suba99ee/jenkinsprofile:${BUILD_NUMBER}"
-        // DOCKERFILE_LOCATION = "SubashreeG/jenkins/Dockerfile"
-        REGISTRY_CREDENTIALS = credentials('dokcred')
-      }
-      steps {
-        script {
-            sh 'cd /usr/bin/docker && docker build -t ${DOCKER_IMAGE} .'
-            def dockerImage = docker.image("${DOCKER_IMAGE}")
-            docker.withRegistry('https://hub.docker.com/repository/docker/suba99ee', "dokcred") {
-                dockerImage.push()
+                DOCKER_IMAGE = "suba99ee/jenkinsprofile:${BUILD_NUMBER}"
+                GITHUB_REPO = 'SubashreeG/jenkins' // Replace with your GitHub repo
+                DOCKERFILE_PATH = 'SubashreeG/jenkins/Dockerfile' // Relative path within the GitHub repo
             }
-        }
-
+            steps {
+                script {
+                    // Clone the GitHub repository that contains your Dockerfile
+                    sh "git clone https://github.com/SubashreeG/jenkins.git"
+                    
+                    // Build the Docker image from the cloned repository
+                    sh "docker build -t ${DOCKER_IMAGE} ${DOCKERFILE_PATH}"
+                    
+                    // Remove the cloned repository to clean up
+                    sh "rm -rf ${GITHUB_REPO}"
+                    
+                    def dockerImage = docker.image("${DOCKER_IMAGE}")
+                    
+                    docker.withRegistry('https://hub.docker.com/repository/docker/suba99ee', "dokcred") {
+                        dockerImage.push()
+                    }
+                }
             }
         }
     }
