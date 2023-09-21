@@ -2,9 +2,6 @@ pipeline {
     agent {
         docker {
             image 'maven:3.8.1-adoptopenjdk-11'
-            // Ensure Docker is available in the PATH
-            // You can specify the full path to the Docker executable if needed
-            // tool 'Docker' // Uncomment and use this line if needed
         }
     }
     stages {
@@ -24,21 +21,20 @@ pipeline {
             }
         }
         stage('Build and Push Docker Image') {
-            steps {
-                script {
-                    // Build Docker image from your Dockerfile
-                    def dockerImageName = 'suba99ee/profileimage:01'
-                    // Specify the full path to the docker executable
-                    sh "/usr/bin/docker build -t $dockerImageName ."
-                    
-                    // Log in to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: 'dockcred', usernameVariable: 'suba99ee', passwordVariable: 'Suba@99ee')]) {
-                        sh "/usr/bin/docker login -u $suba99ee -p $Suba@99ee"
-                    }
-                    
-                    // Push Docker image to Docker Hub
-                    sh "/usr/bin/docker push $dockerImageName"
-                }
+            environment {
+        DOCKER_IMAGE = "suba99ee/jenkinsprofile:${BUILD_NUMBER}"
+        // DOCKERFILE_LOCATION = "SubashreeG/jenkins/Dockerfile"
+        REGISTRY_CREDENTIALS = credentials('dockcred')
+      }
+      steps {
+        script {
+            sh 'cd SubashreeG/jenkins && docker build -t ${DOCKER_IMAGE} .'
+            def dockerImage = docker.image("${DOCKER_IMAGE}")
+            docker.withRegistry('https://hub.docker.com/repository/docker/suba99ee', "dockcred") {
+                dockerImage.push()
+            }
+        }
+
             }
         }
     }
