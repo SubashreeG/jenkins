@@ -7,16 +7,33 @@ pipeline {
     stages {
         stage('Build Web Application') {
             steps {
-                sh 'mvn clean package' // Use 'clean package' to build a WAR
+                sh 'mvn clean package' // Use 'clean package' to build a JAR file
             }
         }
         stage('Static Code Analysis') {
             environment {
-                SONAR_URL = 'http://3.209.59.238:9000' // Removed extra colon
+                SONAR_URL = 'http://3.209.59.238:9000'
             }
             steps {
                 withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_API_TOKEN')]) {
-                    sh "mvn sonar:sonar -Dsonar.login=\$SONAR_API_TOKEN -Dsonar.host.url=\${SONAR_URL}" // Corrected variable name
+                    sh "mvn sonar:sonar -Dsonar.login=\$SONAR_API_TOKEN -Dsonar.host.url=\${SONAR_URL}"
+                }
+            }
+        }
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    // Build Docker image from your Dockerfile
+                    def dockerImageName = 'suba99ee/profileimage:01'
+                    sh "docker build -t $profileimage ."
+                    
+                    // Log in to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'dockcred', usernameVariable: 'suba99ee', passwordVariable: 'Suba@99ee')]) {
+                        sh "docker login -u $suba99ee -p $Suba@99ee"
+                    }
+                    
+                    // Push Docker image to Docker Hub
+                    sh "docker push $profileimage
                 }
             }
         }
