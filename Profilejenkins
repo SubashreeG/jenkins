@@ -32,7 +32,8 @@ pipeline {
                     sh "git clone https://github.com/SubashreeG/jenkins.git"
                     
                     // Build the Docker image from the cloned repository
-                    sh "docker build -t ${DOCKER_IMAGE} ${DOCKERFILE_PATH}"
+                    sh '/usr/bin/docker build -t ${DOCKER_IMAGE} -f /SubashreeG/jenkins/Dockerfile .'
+
                     
                     // Remove the cloned repository to clean up
                     sh "rm -rf ${GITHUB_REPO}"
