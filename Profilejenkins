@@ -24,22 +24,28 @@ pipeline {
             environment {
                 DOCKER_IMAGE = "suba99ee/jenkinsprofile:${BUILD_NUMBER}"
                 GITHUB_REPO = 'SubashreeG/jenkins' // Replace with your GitHub repo
-                DOCKERFILE_PATH = 'SubashreeG/jenkins/Dockerfile' // Relative path within the GitHub repo
+                DOCKERFILE_PATH = '/Dockerfile' // Relative path within the GitHub repo
             }
             steps {
                 script {
                     // Clone the GitHub repository
                     sh "git clone https://github.com/${GITHUB_REPO}.git"
                     
-                    // Build the Docker image from the cloned repository
+                    // Change to the repository directory
+                    sh "cd ${GITHUB_REPO}"
+                    
+                    // Build the Docker image from the Dockerfile within the repository
                     sh "docker build -t ${DOCKER_IMAGE} -f ${DOCKERFILE_PATH} ."
                     
                     def dockerImage = docker.image("${DOCKER_IMAGE}")
                     
-                    // Push the Docker image to Docker Hub
-                    docker.withRegistry('https://hub.docker.com', "dokcred") {
-                        dockerImage.push()
+                    // Log in to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'dokcred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
                     }
+                    
+                    // Push the Docker image to Docker Hub
+                    sh "docker push ${DOCKER_IMAGE}"
                 }
             }
         }
