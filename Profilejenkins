@@ -24,28 +24,31 @@ pipeline {
             environment {
                 DOCKER_IMAGE = "suba99ee/jenkinsprofile:${BUILD_NUMBER}"
                 GITHUB_REPO = 'SubashreeG/jenkins' // Replace with your GitHub repo
-                DOCKERFILE_PATH = '/Dockerfile' // Relative path within the GitHub repo
+                DOCKERFILE_PATH = 'SubashreeG/jenkins/Dockerfile' // Relative path within the GitHub repo
             }
             steps {
                 script {
-                    // Clone the GitHub repository
-                    sh "git clone https://github.com/${GITHUB_REPO}.git"
+                    // Check if the 'jenkins' directory already exists
+                    def workspaceDir = pwd()
+                    def jenkinsDir = "${workspaceDir}/jenkins"
                     
-                    // Change to the repository directory
-                    sh "cd ${GITHUB_REPO}"
+                    if (fileExists(jenkinsDir)) {
+                        // Directory exists, perform a 'git pull' to update
+                        sh "cd ${jenkinsDir} && git pull"
+                    } else {
+                        // Directory does not exist, perform a 'git clone'
+                        sh "git clone https://github.com/${GITHUB_REPO}.git ${jenkinsDir}"
+                    }
                     
-                    // Build the Docker image from the Dockerfile within the repository
-                    sh "docker build -t ${DOCKER_IMAGE} -f ${DOCKERFILE_PATH} ."
+                    // Build the Docker image from the cloned repository
+                    sh "docker build -t ${DOCKER_IMAGE} -f ${jenkinsDir}/${DOCKERFILE_PATH} ${jenkinsDir}"
                     
                     def dockerImage = docker.image("${DOCKER_IMAGE}")
                     
-                    // Log in to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: 'dokcred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
-                    }
-                    
                     // Push the Docker image to Docker Hub
-                    sh "docker push ${DOCKER_IMAGE}"
+                    docker.withRegistry('https://hub.docker.com', "dokcred") {
+                        dockerImage.push()
+                    }
                 }
             }
         }
