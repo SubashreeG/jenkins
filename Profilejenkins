@@ -12,12 +12,11 @@ pipeline {
         }
         stage('Static Code Analysis') {
             environment {
-                SONAR_URL = "http://3.209.59.238/:9000"
+                SONAR_URL = 'http://3.209.59.238:9000' // Removed extra colon
             }
             steps {
                 withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_API_TOKEN')]) {
-                    sh mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}
-                    
+                    sh "mvn sonar:sonar -Dsonar.login=\$SONAR_API_TOKEN -Dsonar.host.url=\${SONAR_URL}" // Corrected variable name
                 }
             }
         }
