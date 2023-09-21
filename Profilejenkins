@@ -2,6 +2,9 @@ pipeline {
     agent {
         docker {
             image 'maven:3.8.1-adoptopenjdk-11'
+            // Ensure Docker is available in the PATH
+            // You can specify the full path to the Docker executable if needed
+            // tool 'Docker' // Uncomment and use this line if needed
         }
     }
     stages {
@@ -25,15 +28,16 @@ pipeline {
                 script {
                     // Build Docker image from your Dockerfile
                     def dockerImageName = 'suba99ee/profileimage:01'
-                    sh "docker build -t $dockerImageName ."
+                    // Specify the full path to the docker executable
+                    sh "/usr/bin/docker build -t $dockerImageName ."
                     
                     // Log in to Docker Hub
                     withCredentials([usernamePassword(credentialsId: 'dockcred', usernameVariable: 'suba99ee', passwordVariable: 'Suba@99ee')]) {
-                        sh "docker login -u $suba99ee -p $Suba@99ee"
+                        sh "/usr/bin/docker login -u $suba99ee -p $Suba@99ee"
                     }
                     
                     // Push Docker image to Docker Hub
-                    sh "docker push $dockerImageName"
+                    sh "/usr/bin/docker push $dockerImageName"
                 }
             }
         }
