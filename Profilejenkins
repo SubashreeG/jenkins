@@ -15,7 +15,7 @@ pipeline {
                 SONAR_URL = "http://3.209.59.238/:9000"
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'sonarqube', usernameVariable: 'admin', passwordVariable: 'b04ce7aa43ec3cace7d01f52d7fe841e7b65731b')]) {
+                withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_API_TOKEN')]) {
                     sh '''
                         cd SubashreeG/jenkins
                         mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}
