@@ -4,10 +4,10 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'suba99ee/imagewithdocker' // Replace with your Docker Hub username and image name
         DOCKER_IMAGE_TAG = 'latest' // You can customize the tag as needed
-        JAR_FILE_PATH = '/var/lib/jenkins/workspace/dockertrial/target/devops-engineer-details-1.0-SNAPSHOT.jar'
     }
 
-    stage('Build Docker Image') {
+    stages {
+        stage('Build Docker Image') {
             steps {
                 script {
                     def jenkinsWorkspace = pwd()
@@ -28,8 +28,6 @@ pipeline {
                     }
                 }
             }
-        }
-    }
         }
     }
 }
