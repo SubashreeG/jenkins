@@ -2,8 +2,6 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_USERNAME = 'suba99ee' // Your Docker Hub username
-        DOCKER_HUB_PASSWORD = 'Suba@99ee' // Use your Docker Hub credentials ID
         DOCKER_IMAGE_NAME = 'suba99ee/imagewithdocker' // Replace with your Docker Hub username and image name
         DOCKER_IMAGE_TAG = 'latest' // You can customize the tag as needed
         JAR_FILE_PATH = '/var/lib/jenkins/workspace/dockertrial/target/devops-engineer-details-1.0-SNAPSHOT.jar'
@@ -15,7 +13,7 @@ pipeline {
                 script {
                     // Authenticate with Docker Hub
                     withCredentials([string(credentialsId: 'docker-hub-credentials', variable: 'DOCKER_HUB_PASSWORD')]) {
-                        sh "docker login -u ${DOCKER_HUB_USERNAME} -p \${DOCKER_HUB_PASSWORD}"
+                        sh "docker login -u suba99ee -p Suba@99ee"
                     }
 
                     // Push the JAR file as an artifact to the Docker image
