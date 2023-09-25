@@ -5,8 +5,21 @@ pipeline {
         }
     }
     stages {
-        // ... (previous stages)
-
+        stage('Build Web Application') {
+            steps {
+                sh 'mvn clean package' // Use 'clean package' to build a JAR file
+            }
+        }
+        stage('Static Code Analysis') {
+            environment {
+                SONAR_URL = 'http://3.209.59.238:9000'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_API_TOKEN')]) {
+                    sh "mvn sonar:sonar -Dsonar.login=\$SONAR_API_TOKEN -Dsonar.host.url=\${SONAR_URL}"
+                }
+            }
+        }
         stage('Build and Push Docker Image') {
             environment {
                 DOCKER_IMAGE = "suba99ee/jenkinsprofile:${BUILD_NUMBER}"
