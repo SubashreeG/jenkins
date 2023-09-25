@@ -4,8 +4,8 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'suba99ee/imagewithdocker' // Replace with your Docker Hub username and image name
         DOCKER_IMAGE_TAG = 'latest' // You can customize the tag as needed
-        DOCKERFILE_REPO = 'https://github.com/yourusername/your-docker-repo.git' // Replace with your GitHub repository URL
-        DOCKERFILE_PATH = 'path/to/Dockerfile' // Relative path to the Dockerfile in the repository
+        DOCKERFILE_REPO = 'https://github.com/SubashreeG/jenkins.git' // Replace with your GitHub repository URL
+        DOCKERFILE_PATH = '/Dockerfile' // Relative path to the Dockerfile in the repository
     }
 
     stages {
