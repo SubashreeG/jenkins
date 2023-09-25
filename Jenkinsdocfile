@@ -5,7 +5,7 @@ pipeline {
         DOCKER_IMAGE_NAME = 'suba99ee/imagewithdocker' // Replace with your Docker Hub username and image name
         DOCKER_IMAGE_TAG = 'latest' // You can customize the tag as needed
         DOCKERFILE_REPO = 'https://github.com/SubashreeG/jenkins.git' // Replace with your GitHub repository URL
-        DOCKERFILE_PATH = '/Dockerfile' // Relative path to the Dockerfile in the repository
+        DOCKERFILE_PATH = 'Dockerfile' // Relative path to the Dockerfile in the repository
         JENKINS_WORKSPACE = '/var/lib/jenkins/workspace/dockertrial'
     }
 
@@ -28,28 +28,26 @@ pipeline {
                     sh "git clone ${DOCKERFILE_REPO} dockerfile-repo"
 
                     // Copy the Dockerfile to the Jenkins workspace
-                    sh "cp dockerfile-repo/${DOCKERFILE_PATH} ."
-                }
-            }
-        }
+                    sh "cp dockerfile-repo/${DOCKERFILE_PATH} ${JENKINS_WORKSPACE}/"
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    def jarFilePath = "${JENKINS_WORKSPACE}/target/devops-engineer-details-1.0-SNAPSHOT.jar"
-
-                    // Verify that the JAR file exists
-                    if (fileExists(jarFilePath)) {
+                    // Navigate to the Jenkins workspace
+                    dir(JENKINS_WORKSPACE) {
                         // Build the Docker image with the JAR file
-                        sh "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f Dockerfile ."
+                        def jarFilePath = "target/devops-engineer-details-1.0-SNAPSHOT.jar"
 
-                        // Authenticate with Docker Hub
-                        sh "docker login -u suba99ee -p Suba@99ee"
+                        // Verify that the JAR file exists
+                        if (fileExists(jarFilePath)) {
+                            // Build the Docker image with the JAR file
+                            sh "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f Dockerfile ."
 
-                        // Push the Docker image to Docker Hub
-                        sh "docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
-                    } else {
-                        error "JAR file not found at ${jarFilePath}"
+                            // Authenticate with Docker Hub
+                            sh "docker login -u suba99ee -p Suba@99ee"
+
+                            // Push the Docker image to Docker Hub
+                            sh "docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+                        } else {
+                            error "JAR file not found at ${jarFilePath}"
+                        }
                     }
                 }
             }
