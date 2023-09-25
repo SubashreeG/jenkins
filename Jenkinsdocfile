@@ -7,25 +7,29 @@ pipeline {
         JAR_FILE_PATH = '/var/lib/jenkins/workspace/dockertrial/target/devops-engineer-details-1.0-SNAPSHOT.jar'
     }
 
-    stages {
-        stage('Push JAR to Docker Hub') {
+    stage('Build Docker Image') {
             steps {
                 script {
-                    // Authenticate with Docker Hub
-                    withCredentials([string(credentialsId: 'docker-hub-credentials', variable: 'DOCKER_HUB_PASSWORD')]) {
+                    def jenkinsWorkspace = pwd()
+                    def jarFilePath = "${jenkinsWorkspace}/target/devops-engineer-details-1.0-SNAPSHOT.jar"
+
+                    // Verify that the JAR file exists
+                    if (fileExists(jarFilePath)) {
+                        // Build the Docker image with the JAR file
+                        sh "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f Dockerfile ."
+
+                        // Authenticate with Docker Hub
                         sh "docker login -u suba99ee -p Suba@99ee"
+
+                        // Push the Docker image to Docker Hub
+                        sh "docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+                    } else {
+                        error "JAR file not found at ${jarFilePath}"
                     }
-
-                    // Push the JAR file as an artifact to the Docker image
-                    sh "docker cp ${JAR_FILE_PATH} ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}/app/"
-
-                    // Commit the changes to the Docker image
-                    sh "docker commit ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
-
-                    // Push the updated Docker image to Docker Hub
-                    sh "docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
                 }
             }
+        }
+    }
         }
     }
 }
