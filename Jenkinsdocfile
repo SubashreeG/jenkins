@@ -6,6 +6,7 @@ pipeline {
         DOCKER_IMAGE_TAG = 'latest' // You can customize the tag as needed
         DOCKERFILE_REPO = 'https://github.com/SubashreeG/jenkins.git' // Replace with your GitHub repository URL
         DOCKERFILE_PATH = '/Dockerfile' // Relative path to the Dockerfile in the repository
+        JENKINS_WORKSPACE = '/var/lib/jenkins/workspace/dockertrial'
     }
 
     stages {
@@ -35,8 +36,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def jenkinsWorkspace = pwd()
-                    def jarFilePath = "${jenkinsWorkspace}/target/devops-engineer-details-1.0-SNAPSHOT.jar"
+                    def jarFilePath = "${JENKINS_WORKSPACE}/target/devops-engineer-details-1.0-SNAPSHOT.jar"
 
                     // Verify that the JAR file exists
                     if (fileExists(jarFilePath)) {
