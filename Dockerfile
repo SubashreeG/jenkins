@@ -1,15 +1,11 @@
-# Use a base image with Java pre-installed
+# Use an official OpenJDK runtime as a parent image
 FROM adoptopenjdk:11-jre-hotspot
 
-# Set the working directory in the container
+# Set the working directory inside the container
 WORKDIR /app
 
 # Copy the JAR file from the build context into the container
-# Dockerfile located in /var/lib/jenkins/workspace/dockertrial/dockerfile-repo
+COPY devops-engineer-details-1.0-SNAPSHOT.jar /app/
 
-# Copy the JAR file from the parent directory (dockertrial) into the container
-COPY ../target/devops-engineer-details-1.0-SNAPSHOT.jar /app/
-
-
-# Define the command to run your Java application
+# Specify the command to run your Java application
 CMD ["java", "-jar", "devops-engineer-details-1.0-SNAPSHOT.jar"]
