@@ -2,10 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REGISTRY = 'docker.io' // Docker Hub registry
-        DOCKER_IMAGE_NAME = 'suba99ee/docimg' // Replace with your Docker Hub username and image name
+        DOCKER_IMAGE_NAME = 'suba99ee/docimg' // Replace 'your-docker-image-name' with your desired image name
         DOCKER_IMAGE_TAG = 'latest' // You can customize the tag as needed
-        DOCKER_EXECUTABLE = '/usr/bin/docker' // Full path to Docker executable
     }
 
     stages {
@@ -16,16 +14,25 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build and Push Docker Image') {
+
+        stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
-                    sh "${DOCKER_EXECUTABLE} build -t ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ."
+                    def jenkinsWorkspace = pwd()
+                    def jarFilePath = "${jenkinsWorkspace}/target/devops-engineer-details-1.0-SNAPSHOT.jar"
 
-                    // Push the Docker image to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
-                        sh "${DOCKER_EXECUTABLE} login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD"
-                        sh "${DOCKER_EXECUTABLE} push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+                    // Verify that the JAR file exists
+                    if (fileExists(jarFilePath)) {
+                        // Build the Docker image with the JAR file
+                        sh "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f Dockerfile ."
+
+                        // Authenticate with Docker Hub
+                        sh "docker login -u suba99ee -p Suba@99ee"
+
+                        // Push the Docker image to Docker Hub
+                        sh "docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+                    } else {
+                        error "JAR file not found at ${jarFilePath}"
                     }
                 }
             }
