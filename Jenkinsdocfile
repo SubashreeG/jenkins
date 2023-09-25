@@ -1,0 +1,36 @@
+pipeline {
+    agent {
+        docker {
+            image 'maven:3.8.1-adoptopenjdk-11'
+        }
+    }
+    environment {
+        DOCKER_REGISTRY = 'docker.io' // Docker Hub registry
+        DOCKER_IMAGE_NAME = 'suba99ee/maven' // Replace with your Docker Hub username and image name
+        DOCKER_IMAGE_TAG = 'latest' // You can customize the tag as needed
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout your code from your version control system (e.g., Git)
+                // Example for Git:
+                checkout scm
+            }
+        }
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    sh 'docker build -t "${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" .'
+
+                    // Push the Docker image to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
+                        sh 'docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD'
+                        sh 'docker push "${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"'
+                    }
+                }
+            }
+        }
+    }
+}
+
