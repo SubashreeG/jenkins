@@ -5,7 +5,11 @@ FROM adoptopenjdk:11-jre-hotspot
 WORKDIR /app
 
 # Copy the JAR file from the build context into the container
-COPY devops-engineer-details-1.0-SNAPSHOT.jar /app/
+# Dockerfile located in /var/lib/jenkins/workspace/dockertrial/dockerfile-repo
+
+# Copy the JAR file from the parent directory (dockertrial) into the container
+COPY ../target/devops-engineer-details-1.0-SNAPSHOT.jar /app/
+
 
 # Define the command to run your Java application
 CMD ["java", "-jar", "devops-engineer-details-1.0-SNAPSHOT.jar"]
