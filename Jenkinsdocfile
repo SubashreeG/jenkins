@@ -2,38 +2,30 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE_NAME = 'suba99ee/docimg' // Replace 'your-docker-image-name' with your desired image name
+        DOCKER_HUB_USERNAME = 'suba99ee' // Your Docker Hub username
+        DOCKER_HUB_PASSWORD = 'Suba@99ee' // Use your Docker Hub credentials ID
+        DOCKER_IMAGE_NAME = 'suba99ee/imagewithdocker' // Replace with your Docker Hub username and image name
         DOCKER_IMAGE_TAG = 'latest' // You can customize the tag as needed
+        JAR_FILE_PATH = '/var/lib/jenkins/workspace/dockertrial/target/devops-engineer-details-1.0-SNAPSHOT.jar'
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                // Checkout your code from your version control system (e.g., Git)
-                // Example for Git:
-                checkout scm
-            }
-        }
-
-        stage('Build Docker Image') {
+        stage('Push JAR to Docker Hub') {
             steps {
                 script {
-                    def jenkinsWorkspace = pwd()
-                    def jarFilePath = "${jenkinsWorkspace}/target/devops-engineer-details-1.0-SNAPSHOT.jar"
-
-                    // Verify that the JAR file exists
-                    if (fileExists(jarFilePath)) {
-                        // Build the Docker image with the JAR file
-                        sh "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f Dockerfile ."
-
-                        // Authenticate with Docker Hub
-                        sh "docker login -u suba99ee -p Suba@99ee"
-
-                        // Push the Docker image to Docker Hub
-                        sh "docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
-                    } else {
-                        error "JAR file not found at ${jarFilePath}"
+                    // Authenticate with Docker Hub
+                    withCredentials([string(credentialsId: 'docker-hub-credentials', variable: 'DOCKER_HUB_PASSWORD')]) {
+                        sh "docker login -u ${DOCKER_HUB_USERNAME} -p \${DOCKER_HUB_PASSWORD}"
                     }
+
+                    // Push the JAR file as an artifact to the Docker image
+                    sh "docker cp ${JAR_FILE_PATH} ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}/app/"
+
+                    // Commit the changes to the Docker image
+                    sh "docker commit ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+
+                    // Push the updated Docker image to Docker Hub
+                    sh "docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
                 }
             }
         }
