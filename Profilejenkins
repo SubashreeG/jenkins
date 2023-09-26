@@ -25,7 +25,7 @@ pipeline {
                 DOCKER_IMAGE = "suba99ee/jenkinsprofile:${BUILD_NUMBER}"
                 GITHUB_REPO = 'SubashreeG/jenkins' // Replace with your GitHub repo
                 DOCKERFILE_PATH = '/Dockerfile' // Relative path within the GitHub repo
-                WORKSPACE_DIR = "${WORKSPACE}/jenkins" // Define your workspace directory
+                WORKSPACE_DIR = "${WORKSPACE}" // Define your workspace directory
             }
             steps {
                 script {
