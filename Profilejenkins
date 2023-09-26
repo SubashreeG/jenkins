@@ -25,21 +25,22 @@ pipeline {
                 DOCKER_IMAGE = "suba99ee/jenkinsprofile:${BUILD_NUMBER}"
                 GITHUB_REPO = 'SubashreeG/jenkins' // Replace with your GitHub repo
                 DOCKERFILE_PATH = '/Dockerfile' // Relative path within the GitHub repo
+                WORKSPACE_DIR = "${WORKSPACE}/jenkins" // Define your workspace directory
             }
             steps {
                 script {
-                    // Check if the 'jenkins' directory already exists
-                    def jenkinsDir = '/usr/bin/jenkins'
+                    // Check if the 'jenkins' directory already exists in the workspace
+                    def jenkinsDir = "${WORKSPACE_DIR}"
 
                     if (fileExists(jenkinsDir)) {
                         // Directory exists, perform a 'git pull' to update
                         sh "cd ${jenkinsDir} && git pull"
                     } else {
-                        // Directory does not exist, perform a 'git clone'
+                        // Directory does not exist, perform a 'git clone' in the workspace
                         sh "git clone https://github.com/${GITHUB_REPO}.git ${jenkinsDir}"
                     }
 
-                    // Build the Docker image from the cloned repository
+                    // Build the Docker image from the cloned repository in the workspace
                     sh "docker build -t ${DOCKER_IMAGE} -f ${jenkinsDir}/${DOCKERFILE_PATH} ${jenkinsDir}"
 
                     def dockerImage = docker.image("${DOCKER_IMAGE}")
