@@ -29,8 +29,7 @@ pipeline {
             steps {
                 script {
                     // Check if the 'jenkins' directory already exists
-                    def workspaceDir = pwd()
-                    def jenkinsDir = "$/usr/bin/jenkins"
+                    def jenkinsDir = '/usr/bin/jenkins'
 
                     if (fileExists(jenkinsDir)) {
                         // Directory exists, perform a 'git pull' to update
