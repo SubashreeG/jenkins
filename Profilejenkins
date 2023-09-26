@@ -42,7 +42,7 @@ pipeline {
                     }
 
                     // Build the Docker image from the cloned repository in the workspace
-                    sh "docker build -t ${DOCKER_IMAGE} -f ${jenkinsDir} ${jenkinsDir}"
+                    sh "/usr/bin/docker build -t ${DOCKER_IMAGE} -f ${jenkinsDir}/${DOCKERFILE_PATH} ${jenkinsDir}"
 
                     def dockerImage = docker.image("${DOCKER_IMAGE}")
 
