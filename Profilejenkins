@@ -1,25 +1,18 @@
 pipeline {
-    agent none // Specify 'none' here to allow manual agent selection
-
+    agent {
+        docker {
+            image 'maven:3.8.1-adoptopenjdk-11'
+        }
+    }
     stages {
         stage('Build Web Application') {
-            agent {
-                label 'docker-agent' // Specify the label of an agent with Docker
-            }
             steps {
-                script {
-                    // You can run Docker commands here directly on the agent
-                    sh 'docker --version'
-                    sh 'mvn clean package'
-                }
+                sh 'mvn clean package' // Use 'clean package' to build a JAR file
             }
         }
         stage('Static Code Analysis') {
             environment {
                 SONAR_URL = 'http://3.209.59.238:9000'
-            }
-            agent {
-                label 'docker-agent' // Specify the label of an agent with Docker
             }
             steps {
                 withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_API_TOKEN')]) {
@@ -28,13 +21,11 @@ pipeline {
             }
         }
         stage('Build and Push Docker Image') {
-            agent {
-                label 'docker-agent' // Specify the label of an agent with Docker
-            }
             environment {
                 DOCKER_IMAGE = "suba99ee/jenkinsprofile:${BUILD_NUMBER}"
                 GITHUB_REPO = 'SubashreeG/jenkins' // Replace with your GitHub repo
                 DOCKERFILE_PATH = '/Dockerfile' // Relative path within the GitHub repo
+                DOCKER_EXECUTABLE = '/usr/bin/docker' // Specify the full path to Docker
             }
             steps {
                 script {
@@ -50,13 +41,13 @@ pipeline {
                         sh "git clone https://github.com/${GITHUB_REPO}.git ${jenkinsDir}"
                     }
 
-                    // Build the Docker image from the cloned repository using the Docker executable on the agent
-                    sh "docker build -t ${DOCKER_IMAGE} -f ${jenkinsDir}/${DOCKERFILE_PATH} ${jenkinsDir}"
+                    // Build the Docker image from the cloned repository using the specified Docker executable
+                    sh "${DOCKER_EXECUTABLE} build -t ${DOCKER_IMAGE} -f ${jenkinsDir}/${DOCKERFILE_PATH} ${jenkinsDir}"
 
                     def dockerImage = docker.image("${DOCKER_IMAGE}")
 
                     // Push the Docker image to Docker Hub
-                    docker.withRegistry('https://hub.docker.com', 'dokcred') {
+                    docker.withRegistry('https://hub.docker.com', "dokcred") {
                         dockerImage.push()
                     }
                 }
