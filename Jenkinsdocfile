@@ -1,56 +1,34 @@
 pipeline {
-    agent any
-
     environment {
-        DOCKER_IMAGE_NAME = 'suba99ee/imagewithdocker' // Replace with your Docker Hub username and image name
-        DOCKER_IMAGE_TAG = 'latest' // You can customize the tag as needed
-        DOCKERFILE_REPO = 'https://github.com/SubashreeG/jenkins.git' // Replace with your GitHub repository URL
-        DOCKERFILE_PATH = '/Dockerfile' // Relative path to the Dockerfile in the repository
+        registry = "suba99ee/jenkins"
+        registryCredential = 'dokcred'
     }
-
+    agent any
     stages {
-        stage('Checkout') {
+        stage('Cloning our Git') {
             steps {
-                // Checkout your code from your version control system (e.g., Git)
-                // Example for Git:
-                checkout scm
+                git 'https://github.com/SubashreeG/jenkins.git'
             }
         }
-
-        stage('Clone Dockerfile Repository') {
+        stage('Building our image') {
             steps {
                 script {
-                    // Clean up workspace
-                    sh 'rm -rf dockerfile-repo'
-
-                    // Clone the Dockerfile repository from GitHub
-                    sh "git clone ${DOCKERFILE_REPO} dockerfile-repo"
-
-                    // Copy the Dockerfile to the Jenkins workspace
-                    sh "cp dockerfile-repo/${DOCKERFILE_PATH} ."
+                    dockerImage = docker.build("${registry}:${BUILD_NUMBER}")
                 }
             }
         }
-
-        stage('Build Docker Image') {
+        stage('Deploy our image') {
             steps {
                 script {
-                    def jarFilePath = "target/devops-engineer-details-1.0-SNAPSHOT.jar"
-
-                    // Verify that the JAR file exists
-                    if (fileExists(jarFilePath)) {
-                        // Build the Docker image with the JAR file
-                        sh "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f Dockerfile ."
-
-                        // Authenticate with Docker Hub (replace with your credentials)
-                        sh "docker login -u your-docker-username -p your-docker-password"
-
-                        // Push the Docker image to Docker Hub
-                        sh "docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
-                    } else {
-                        error "JAR file not found at ${jarFilePath}"
+                    docker.withRegistry('', registryCredential) {
+                        dockerImage.push()
                     }
                 }
+            }
+        }
+        stage('Cleaning up') {
+            steps {
+                sh "docker rmi ${registry}:${BUILD_NUMBER}"
             }
         }
     }
