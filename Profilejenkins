@@ -26,6 +26,7 @@ pipeline {
                 GITHUB_REPO = 'SubashreeG/jenkins' // Replace with your GitHub repo
                 DOCKERFILE_PATH = '/Dockerfile' // Relative path within the GitHub repo
                 WORKSPACE_DIR = "${WORKSPACE}" // Define your workspace directory
+                GIT_BRANCH = 'master' // Specify the Git branch you want to pull
             }
             steps {
                 script {
@@ -33,11 +34,11 @@ pipeline {
                     def jenkinsDir = "${WORKSPACE_DIR}"
 
                     if (fileExists(jenkinsDir)) {
-                        // Directory exists, perform a 'git pull' to update
-                        sh "cd ${jenkinsDir} && git pull"
+                        // Directory exists, perform a 'git pull' on the specified branch
+                        sh "cd ${jenkinsDir} && git pull origin ${GIT_BRANCH}"
                     } else {
-                        // Directory does not exist, perform a 'git clone' in the workspace
-                        sh "git clone https://github.com/${GITHUB_REPO}.git ${jenkinsDir}"
+                        // Directory does not exist, perform a 'git clone' on the specified branch in the workspace
+                        sh "git clone -b ${GIT_BRANCH} https://github.com/${GITHUB_REPO}.git ${jenkinsDir}"
                     }
 
                     // Build the Docker image from the cloned repository in the workspace
