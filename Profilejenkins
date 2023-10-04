@@ -9,40 +9,37 @@ pipeline {
     stage('Checkout') {
       steps {
         sh 'echo passed'
-        //git branch: 'main', url: 'https://github.com/SubashreeG/jenkins.git'
+        // git branch: 'main', url: 'https://github.com/SubashreeG/jenkins.git'
       }
     }
     stage('Build Web Application') {
-            steps {
-                sh 'mvn clean package' // Use 'clean package' to build a JAR file
-            }
-        }
-   stage('Static Code Analysis') {
-            environment {
-                SONAR_URL = 'http://3.209.59.238:9000'
-            }
-            steps {
-                withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_API_TOKEN')]) {
-                    sh "mvn sonar:sonar -Dsonar.login=\$SONAR_API_TOKEN -Dsonar.host.url=\${SONAR_URL}"
-                }
-            }
-        }
-    stage('Build and Push Docker Image') {
+      steps {
+        sh 'mvn clean package' // Use 'clean package' to build a JAR file
+      }
+    }
+    stage('Static Code Analysis') {
       environment {
-        DOCKER_IMAGE = "suba99ee/profilejenkins:${BUILD_NUMBER}"
-        REGISTRY_CREDENTIALS = credentials('dokcred')
+        SONAR_URL = 'http://3.209.59.238:9000'
       }
       steps {
-        script {
-            sh 'cd SubashreeG/Profilejenkins&& docker build -t ${DOCKER_IMAGE} .'
-            def dockerImage = docker.image("${DOCKER_IMAGE}")
-            docker.withRegistry('https://index.docker.io/v1/', "dokcred") {
-                dockerImage.push()
-            }
+        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_API_TOKEN')]) {
+          sh "mvn sonar:sonar -Dsonar.login=\$SONAR_API_TOKEN -Dsonar.host.url=\${SONAR_URL}"
         }
       }
     }
-   
+    stage('Build and Push Docker Image') {
+      environment {
+        DOCKER_IMAGE = "suba99ee/profilejenkins:${BUILD_NUMBER}"
+      }
+      steps {
+        script {
+          sh 'cd SubashreeG/Profilejenkins && docker build -t ${DOCKER_IMAGE} .'
+          def dockerImage = docker.image("${DOCKER_IMAGE}")
+          docker.withRegistry('https://index.docker.io/v1/', credentialsId: 'dokcred') {
+            dockerImage.push()
+          }
+        }
+      }
     }
   }
 }
