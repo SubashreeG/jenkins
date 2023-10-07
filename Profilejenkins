@@ -33,6 +33,8 @@ pipeline {
         stage('Build and Push Docker Image') {
             steps {
                 echo 'Building and pushing Docker image...'
+                sh 'docker --version'
+                echo 'above is the version'
                 sh 'docker build -t -d ${DOCKER_IMAGE} -f jenkins/Profilejenkins .'
                 script {
                     def dockerImage = docker.image("${DOCKER_IMAGE}")
