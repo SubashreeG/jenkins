@@ -22,22 +22,6 @@ pipeline {
                 sh 'mvn clean package' // Use 'clean package' to build a JAR file
             }
         }
-        stage('Static Code Analysis') {
-            steps {
-                echo 'Running static code analysis...'
-                withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_API_TOKEN')]) {
-                    sh "mvn sonar:sonar -Dsonar.login=\$SONAR_API_TOKEN -Dsonar.host.url=\${SONAR_URL}"
-                }
-            }
-        }
-        stage('Initialize') {
-            steps {
-                script {
-                    def dockerHome = tool name: 'docker', type: 'Tool'
-                    env.PATH = "${dockerHome}/bin:${env.PATH}"
-                }
-            }
-        }
         stage('Build and Push Docker Image') {
             steps {
                 echo 'Building and pushing Docker image...'
