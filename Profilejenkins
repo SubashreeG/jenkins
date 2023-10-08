@@ -7,12 +7,6 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build Web Application') {
-            steps {
-                echo 'Building web application...'
-                sh 'mvn clean package' // Use 'clean package' to build a JAR file
-            }
-        }
         stage('Build and Push Docker Image') {
             steps {
                 script {
