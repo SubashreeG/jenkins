@@ -17,7 +17,7 @@ pipeline {
                     sh "docker build -f ${dockerfile} -t ${dockerImageTag} /var/lib/jenkins/workspace/SubashreeProfile"
 
                     // Push the Docker image
-                    docker.withRegistry('https://index.docker.io/v1/', credentialsId: 'dokcred') {
+                    docker.withRegistry('https://hub.docker.com/repository/docker/suba99ee', credentialsId: 'dokcred') {
                         def dockerImage = docker.image("${dockerImageTag}")
                         dockerImage.push()
                     }
