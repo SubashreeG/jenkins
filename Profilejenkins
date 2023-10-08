@@ -1,5 +1,10 @@
 pipeline {
     agent any
+    environment {
+        DOCKERFILE_PATH = "/var/lib/jenkins/workspace/SubashreeProfile/Dockerfile"
+        DOCKER_IMAGE_TAG = "suba99ee/dokimg:02"
+        DOCKER_HUB_CREDENTIALS = credentials('dokcred') // Define your Docker Hub credentials ID here
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -10,15 +15,12 @@ pipeline {
         stage('Build and Push Docker Image') {
             steps {
                 script {
-                    def dockerfile = "/var/lib/jenkins/workspace/SubashreeProfile/Dockerfile"
-                    def dockerImageTag = "suba99ee/dokimg:02"
-
                     // Build the Docker image
-                    sh "docker build -f ${dockerfile} -t ${dockerImageTag} /var/lib/jenkins/workspace/SubashreeProfile"
+                    sh "docker build -f ${DOCKERFILE_PATH} -t ${DOCKER_IMAGE_TAG} /var/lib/jenkins/workspace/SubashreeProfile"
 
-                    // Push the Docker image
-                    docker.withRegistry('https://hub.docker.com/repository/docker/suba99ee', credentialsId: 'dokcred') {
-                        def dockerImage = docker.image("${dockerImageTag}")
+                    // Push the Docker image to Docker Hub
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
+                        def dockerImage = docker.image("${DOCKER_IMAGE_TAG}")
                         dockerImage.push()
                     }
                 }
