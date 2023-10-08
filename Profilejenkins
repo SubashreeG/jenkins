@@ -3,7 +3,7 @@ pipeline {
     environment {
         DOCKERFILE_PATH = "/var/lib/jenkins/workspace/SubashreeProfile/Dockerfile"
         DOCKER_IMAGE_TAG = "suba99ee/dokimg:02"
-        DOCKER_HUB_CREDENTIALS = credentials('dokcred') // Define your Docker Hub credentials ID here
+        DOCKER_HUB_CREDENTIALS = credentials('suba99ee') // Define your Docker Hub credentials ID here
     }
     stages {
         stage('Checkout') {
