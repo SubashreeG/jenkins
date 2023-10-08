@@ -3,7 +3,6 @@ pipeline {
     environment {
         DOCKERFILE_PATH = "/var/lib/jenkins/workspace/SubashreeProfile/Dockerfile"
         DOCKER_IMAGE_TAG = "suba99ee/dokimg:02"
-        DOCKER_HUB_CREDENTIALS = credentials('suba99ee') // Define your Docker Hub credentials ID here
     }
     stages {
         stage('Checkout') {
@@ -24,7 +23,7 @@ pipeline {
             steps {
                 script {
                     // Push the Docker image to Docker Hub
-                    withDockerRegistry([credentialsId: DOCKER_HUB_CREDENTIALS, url: 'https://index.docker.io/v1/']) {
+                    withDockerRegistry([credentialsId: 'dokcred', url: 'https://index.docker.io/v1/']) {
                         def dockerImage = docker.image("${DOCKER_IMAGE_TAG}")
                         dockerImage.push()
                     }
